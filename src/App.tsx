@@ -27,6 +27,7 @@ import { Logo } from './ui/Logo.tsx';
 import { Pill } from './ui/Pill.tsx';
 import { Sheet } from './ui/Sheet.tsx';
 import { ToastHost } from './ui/Toast.tsx';
+import { ValleyParchmentMap } from './ui/ValleyParchmentMap.tsx';
 
 const EngineConsole = lazy(() => import('./screens/EngineConsole.tsx'));
 
@@ -206,7 +207,11 @@ export default function App() {
       fullscreen: () => toggleFullscreen(),
       director: () => openOverlay('director'),
       vision: () => setScreen(screen === 'vision' ? 'world' : 'vision'),
-      devTools: () => setScreen('inspector'),
+      devTools: () => {
+        if (screen !== 'world') {
+          setScreen('inspector');
+        }
+      },
     }),
     [
       overlay,
@@ -243,17 +248,17 @@ export default function App() {
 
         {/* Top Bar (shown on all screens except Intro) */}
         {screen !== 'intro' && (
-          <header className="fixed top-0 inset-x-0 z-40 px-4 sm:px-6 pt-3 pb-2 pointer-events-none">
-            <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-3">
+          <header className="fixed top-0 inset-x-0 z-40 px-3 sm:px-6 pt-3 pb-2 pointer-events-none">
+            <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
               {/* Left: Arch logo + current place name */}
-              <Pill className="pointer-events-auto px-3.5 py-1.5 gap-2.5">
+              <Pill className="pointer-events-auto px-2.5 sm:px-3.5 py-1.5 gap-1.5 sm:gap-2.5 min-w-0">
                 <button
                   type="button"
                   onClick={() => setScreen('intro')}
                   aria-label="Return to title screen"
-                  className="inline-flex items-center gap-2 cursor-pointer"
+                  className="inline-flex items-center gap-2 cursor-pointer shrink-0"
                 >
-                  <Logo size={28} />
+                  <Logo size={24} />
                   <span className="font-display text-[15px] text-[#14151A] hidden sm:inline">
                     Arkvoid
                   </span>
@@ -261,22 +266,22 @@ export default function App() {
                 <span aria-hidden="true" className="text-[#988686]">
                   ·
                 </span>
-                <span className="text-[14px] font-medium text-[#14151A] truncate max-w-[150px] sm:max-w-none">
+                <span className="text-[13px] sm:text-[14px] font-medium text-[#14151A] truncate max-w-[96px] sm:max-w-none">
                   {placeMeta.name}
                 </span>
               </Pill>
 
               {/* Centre: World clock chip "Day 1 · Dusk" + Offline voice tag */}
-              <Pill className="pointer-events-auto px-4 py-2 gap-2.5">
-                <span className="font-mono-label text-[#14151A] tabular-nums">
+              <Pill className="pointer-events-auto px-2.5 sm:px-4 py-1.5 sm:py-2 gap-1.5 sm:gap-2 whitespace-nowrap shrink-0">
+                <span className="font-mono-label text-[#14151A] tabular-nums whitespace-nowrap">
                   {formatWorld(world.now, 'part')}
                 </span>
                 {ai.mode === 'offline' && (
                   <>
-                    <span aria-hidden="true" className="text-[#988686]">
+                    <span aria-hidden="true" className="text-[#988686] hidden sm:inline">
                       ·
                     </span>
-                    <span className="font-mono text-[11px] text-[#4B4F56] uppercase tracking-wider">
+                    <span className="font-mono text-[11px] text-[#4B4F56] uppercase tracking-wider hidden sm:inline">
                       Offline voice
                     </span>
                   </>
@@ -284,7 +289,7 @@ export default function App() {
               </Pill>
 
               {/* Right: Keys, Sound, Fullscreen */}
-              <div className="pointer-events-auto flex items-center gap-2">
+              <div className="pointer-events-auto flex items-center gap-1 sm:gap-2 shrink-0">
                 <IconButton
                   label="Keyboard shortcuts"
                   active={overlay === 'keys'}
@@ -328,6 +333,7 @@ export default function App() {
             <div className="min-h-dvh pt-24 pb-32 px-4 sm:px-8 max-w-[1120px] mx-auto">
               <div className="font-mono-label text-[#4B4F56] mb-1">Valley Atlas · R6 Realm Gates</div>
               <h1 className="font-display text-3xl mb-6">Eight Places of the First World</h1>
+              <ValleyParchmentMap currentPlace={world.playerPlace} onSelectPlace={moveTo} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {(Object.keys(LOCATIONS) as Array<keyof typeof LOCATIONS>).map((locId) => {
                   const loc = LOCATIONS[locId];
@@ -560,65 +566,69 @@ export default function App() {
         {screen !== 'intro' && (
           <nav
             aria-label="Primary world navigation"
-            className="fixed bottom-4 inset-x-0 z-40 flex justify-center px-3 pointer-events-none"
+            className="fixed bottom-3 sm:bottom-4 inset-x-0 z-40 flex justify-center px-3 pointer-events-none"
           >
             {/* Desktop 8-item dock */}
-            <Pill className="hidden md:inline-flex pointer-events-auto p-1.5 gap-1">
-              {DOCK_ITEMS.map((item) => {
-                const active = screen === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setScreen(item.id)}
-                    className={`min-h-[48px] px-3.5 py-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
-                      active
-                        ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
-                        : 'text-[#4B4F56] hover:text-[#14151A] hover:bg-[#14151A]/[0.04]'
-                    }`}
-                  >
-                    <Icon name={item.icon} size={22} />
-                    <span className="text-[11px] leading-none tracking-tight">
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </Pill>
+            <div className="hidden md:flex pointer-events-auto">
+              <Pill className="p-1.5 gap-1">
+                {DOCK_ITEMS.map((item) => {
+                  const active = screen === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setScreen(item.id)}
+                      className={`min-h-[48px] px-3.5 py-1.5 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
+                        active
+                          ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
+                          : 'text-[#4B4F56] hover:text-[#14151A] hover:bg-[#14151A]/[0.04]'
+                      }`}
+                    >
+                      <Icon name={item.icon} size={22} />
+                      <span className="text-[11px] leading-none tracking-tight">
+                        {item.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </Pill>
+            </div>
 
             {/* Mobile 5-icon dock with "More" sheet */}
-            <Pill className="inline-flex md:hidden pointer-events-auto p-1.5 gap-1">
-              {DOCK_ITEMS.filter((i) => i.mobilePrimary).map((item) => {
-                const active = screen === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setScreen(item.id)}
-                    className={`min-w-[58px] min-h-[48px] px-2.5 py-1 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
-                      active
-                        ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
-                        : 'text-[#4B4F56]'
-                    }`}
-                  >
-                    <Icon name={item.icon} size={22} />
-                    <span className="text-[11px] leading-none">{item.label}</span>
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                onClick={() => openOverlay('more')}
-                className={`min-w-[58px] min-h-[48px] px-2.5 py-1 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
-                  overlay === 'more'
-                    ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
-                    : 'text-[#4B4F56]'
-                }`}
-              >
-                <Icon name="more" size={22} />
-                <span className="text-[11px] leading-none">More</span>
-              </button>
-            </Pill>
+            <div className="flex md:hidden pointer-events-auto">
+              <Pill className="p-1.5 gap-1">
+                {DOCK_ITEMS.filter((i) => i.mobilePrimary).map((item) => {
+                  const active = screen === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setScreen(item.id)}
+                      className={`min-w-[56px] min-h-[48px] px-2 py-1 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
+                        active
+                          ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
+                          : 'text-[#4B4F56]'
+                      }`}
+                    >
+                      <Icon name={item.icon} size={20} />
+                      <span className="text-[11px] leading-none">{item.label}</span>
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => openOverlay('more')}
+                  className={`min-w-[56px] min-h-[48px] px-2 py-1 rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer ${
+                    overlay === 'more'
+                      ? 'bg-[#14151A]/[0.07] text-[#14151A] font-medium'
+                      : 'text-[#4B4F56]'
+                  }`}
+                >
+                  <Icon name="more" size={20} />
+                  <span className="text-[11px] leading-none">More</span>
+                </button>
+              </Pill>
+            </div>
           </nav>
         )}
 

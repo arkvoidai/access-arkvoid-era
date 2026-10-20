@@ -49,7 +49,7 @@ export default defineConfig(() => {
       },
     },
     build: {
-      target: 'es2022',
+      target: 'es2020',
       rollupOptions: {
         output: {
           manualChunks(id) {
@@ -58,6 +58,12 @@ export default defineConfig(() => {
             }
             if (id.includes('node_modules/gsap')) {
               return 'gsap';
+            }
+            if (
+              id.includes('node_modules/three') ||
+              id.includes('node_modules/postprocessing')
+            ) {
+              return 'three-vendor';
             }
             if (id.includes('/src/engine/')) {
               return 'engine';

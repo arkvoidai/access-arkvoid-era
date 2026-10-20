@@ -1,4 +1,5 @@
 import { get as idbGet, set as idbSet } from 'idb-keyval';
+import { clearPersistedWearMap, WEAR_STORAGE_KEY } from '../world3d/terrain/Wear.ts';
 import type { LedgerEvent, WorldState } from './types.ts';
 
 export const LEDGER_STORAGE_KEY = 'arkvoid:v1:ledger';
@@ -155,12 +156,16 @@ export async function clearPersistedWorld(): Promise<void> {
   }
   memoryFallback.delete(LEDGER_STORAGE_KEY);
   memoryFallback.delete(STATE_STORAGE_KEY);
+  memoryFallback.delete(WEAR_STORAGE_KEY);
+
+  await clearPersistedWearMap();
 
   if (hasIndexedDb()) {
     try {
       await Promise.all([
         idbSet(LEDGER_STORAGE_KEY, null),
         idbSet(STATE_STORAGE_KEY, null),
+        idbSet(WEAR_STORAGE_KEY, null),
       ]);
     } catch {
       // Ignore
@@ -170,6 +175,7 @@ export async function clearPersistedWorld(): Promise<void> {
     try {
       localStorage.removeItem(LEDGER_STORAGE_KEY);
       localStorage.removeItem(STATE_STORAGE_KEY);
+      localStorage.removeItem(WEAR_STORAGE_KEY);
     } catch {
       // Ignore
     }

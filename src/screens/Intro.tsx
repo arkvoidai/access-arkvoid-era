@@ -57,8 +57,14 @@ export default function Intro() {
 
   const handleCardSelect = (cardId: 'explore' | 'demo' | 'glasses') => {
     if (cardId === 'explore') {
+      import('../world3d/cinematics/Descent.ts')
+        .then((m) => m.queueOpeningDescent())
+        .catch(() => {});
       setScreen('world');
     } else if (cardId === 'demo') {
+      import('../world3d/cinematics/Descent.ts')
+        .then((m) => m.queueOpeningDescent())
+        .catch(() => {});
       setScreen('world');
       openOverlay('director');
     } else if (cardId === 'glasses') {

@@ -1,0 +1,5 @@
+{
+  "name": "Arkvoid — Persistent World Preview",
+  "description": "A world that remembers you. Early preview, in development by Arkvoid Inc.",
+  "requestFramePermissions": ["microphone"]
+}
